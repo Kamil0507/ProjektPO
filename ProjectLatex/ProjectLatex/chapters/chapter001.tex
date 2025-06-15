@@ -1,0 +1,30 @@
+\chapter{Wprowadzenie}
+\label{chap:wprowadzenie}
+
+Celem projektu było zaprojektowanie oraz zaimplementowanie zintegrowanego systemu informatycznego przeznaczonego do zarządzania zasobami Ochotniczej Straży Pożarnej. Stworzona aplikacja desktopowa, nazwana ,,System Zarządzania OSP'', ma na celu zastąpienie tradycyjnych, papierowych form ewidencji, oferując w zamian szybki dostęp do danych oraz ich łatwą modyfikację.
+
+\section{Główne Założenia i Funkcjonalności Systemu}
+\label{sec:zalozenia}
+
+Projekt został zrealizowany jako aplikacja desktopowa, która łączy się z centralną bazą danych. Główne funkcjonalności systemu zostały podzielone na logiczne moduły, które obejmują kluczowe aspekty działalności jednostki OSP.
+
+\begin{itemize}
+    \item \textbf{System Uwierzytelniania Użytkowników:} Aplikacja posiada wbudowany ekran logowania , który weryfikuje tożsamość użytkownika na podstawie danych z bazy. System obsługuje również różne role (np. ,,admin''), co pozwala na zróżnicowanie poziomu dostępu do poszczególnych funkcji.
+    \item \textbf{Moduł Zarządzania Strażakami:} Umożliwia pełne zarządzanie danymi strażaków (operacje CRUD). Przechowuje informacje takie jak dane osobowe, stopień, data wstąpienia do służby czy ważność badań lekarskich.
+    \item \textbf{Moduł Zarządzania Interwencjami:} Służy do ewidencjonowania wszystkich akcji ratowniczych. Pozwala na zapisywanie szczegółów zdarzenia, takich jak data, rodzaj, miejsce, opis działań, a także lista uczestniczących w akcji strażaków i wykorzystanych pojazdów.
+    \item \textbf{Moduł Zarządzania Pojazdami:} Umożliwia prowadzenie ewidencji floty pojazdów jednostki, przechowując ich oznaczenia taktyczne oraz numery rejestracyjne.
+    \item \textbf{Nawigacja:} Po zalogowaniu użytkownik ma dostęp do centralnego menu, z którego może nawigować do poszczególnych modułów systemu.
+\end{itemize}
+
+\section{Wykorzystane Technologie}
+\label{sec:technologie}
+
+Do realizacji projektu wykorzystano sprawdzone i stabilne technologie, które zapewniły odpowiednią funkcjonalność oraz wydajność aplikacji.
+\begin{itemize}
+    \item \textbf{Język Programowania:} Cała logika aplikacji została zaimplementowana w języku \textbf{Java}, co gwarantuje jej wieloplatformowość.
+    \item \textbf{Interfejs Graficzny Użytkownika (GUI):} Interfejs został zbudowany przy użyciu biblioteki \textbf{Java Swing}, która jest standardowym narzędziem do tworzenia aplikacji okienkowych w Javie.
+    \item \textbf{Baza Danych:} System opiera się na relacyjnej bazie danych \textbf{MySQL}. Nazwa schematu bazy to \texttt{szosp}.
+    \item \textbf{Komunikacja z Bazą Danych:} Do połączenia aplikacji z bazą danych wykorzystano sterownik \textbf{JDBC (Java Database Connectivity)}, który jest standardowym API Javy do wykonywania zapytań SQL.
+\end{itemize}
+
+
