@@ -1,0 +1,74 @@
+
+\section{Moduł Zarządzania Strażakami}
+\label{chap:strazacy}
+
+Moduł zarządzania strażakami jest kluczową funkcjonalnością systemu, umożliwiającą administratorowi wykonywanie pełnego zakresu operacji CRUD (Create, Read, Update, Delete) na danych pracowników. Każda operacja została zaimplementowana w dedykowanej klasie, co zapewnia wysoką organizację kodu i łatwość w zarządzaniu.
+
+\section*{Widok Główny i Wczytywanie Danych}
+\label{sec:strazacy_widok}
+
+Główny widok modułu (Rys. \ref{fig:strazacy}) prezentuje listę wszystkich strażaków w formie tabeli. Jest to podstawowy interfejs, z którego użytkownik może nawigować do bardziej szczegółowych operacji. Poniżej tabeli znajdują się przyciski akcji: "Dodaj", "Edytuj", "Usuń" oraz "Cofnij", pozwalający na powrót do menu głównego.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{figures/Strazacy.png}
+	\caption{Główny widok modułu zarządzania strażakami.}
+	\label{fig:strazacy}
+\end{figure}
+
+Dane do tabeli są dynamicznie ładowane przy tworzeniu okna za pomocą metody `ZaladujStrazacy()`. Metoda ta wykonuje zapytanie SQL w celu pobrania z bazy danych imienia, nazwiska, stopnia, daty wstąpienia oraz ważności badań lekarskich każdego strażaka. Pobrane dane są następnie dodawane jako wiersze do obiektu `DefaultTableModel`, który stanowi model dla komponentu `JTable`. W tym widoku, w celu ochrony danych, komórki tabeli są domyślnie nieedytowalne, co jest zdefiniowane przez nadpisanie metody `isCellEditable`.
+
+\section*{Dodawanie Nowego Strażaka}
+\label{sec:strazacy_dodaj}
+
+Po naciśnięciu przycisku "Dodaj", użytkownik jest przenoszony do formularza tworzenia nowego strażaka i powiązanego z nim konta użytkownika (Rys. \ref{fig:strazacy_dodaj_form}). Formularz jest podzielony na sekcje dotyczące danych osobowych oraz danych logowania.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{figures/StrazacyDodaj.png}
+	\caption{Formularz dodawania nowego strażaka.}
+	\label{fig:strazacy_dodaj_form}
+\end{figure}
+
+Proces zapisu nowego strażaka jest operacją krytyczną, dlatego został zaimplementowany w ramach transakcji bazodanowej, aby zapewnić integralność i spójność danych.
+\begin{enumerate}
+    \item Po odczytaniu danych z formularza, system weryfikuje, czy kluczowe pola (imię, nazwisko, login, hasło) nie są puste.
+    \item Nawiązywane jest połączenie z bazą, a tryb automatycznego zatwierdzania transakcji (\texttt{AutoCommit}) zostaje wyłączony (\texttt{conn.setAutoCommit(false)}).
+    \item Wykonywane jest pierwsze zapytanie \texttt{INSERT} do tabeli \texttt{strazacy}. Użycie flagi \texttt{Statement.RETURN\_GENERATED\_KEYS} pozwala na natychmiastowe pobranie automatycznie wygenerowanego przez bazę klucza głównego (\texttt{strazak\_id}) dla nowo utworzonego rekordu.
+    \item Pobrany identyfikator (\texttt{strazakId}) jest następnie używany w drugim zapytaniu \texttt{INSERT}, które tworzy konto w tabeli \texttt{uzytkownicy} i wiąże je z nowo dodanym strażakiem poprzez klucz obcy.
+    \item Jeśli obie operacje zapisu powiodą się, transakcja jest finalizowana za pomocą \texttt{conn.commit()}. W przypadku wystąpienia błędu na dowolnym etapie, wszystkie zmiany wprowadzone w ramach bieżącej transakcji są wycofywane przez wywołanie \texttt{conn.rollback()}.
+    \item System jest również przygotowany na obsługę wyjątków związanych z nieprawidłowym formatem daty, informując o tym użytkownika w czytelny sposób.
+\end{enumerate}
+
+\section*{Edycja Danych Strażaka}
+\label{sec:strazacy_edycja}
+
+Okno edycji (Rys. \ref{fig:strazacy_edytuj_widok}), dostępne po kliknięciu przycisku "Edytuj", dziedziczy po głównym oknie `Strazacy`, ale wykorzystuje specjalnie przygotowany model tabeli – `EditableStrazacyTableModel`. Ten model, w przeciwieństwie do domyślnego, pozwala na bezpośrednią modyfikację danych w komórkach, dzięki zwracaniu wartości `true` w metodzie `isCellEditable`. Zmiany są zapisywane w bazie danych po kliknięciu przycisku "Zapisz". Metoda `zapiszZmiany()` iteruje przez wszystkie wiersze tabeli i dla każdego z nich przygotowuje zapytanie `UPDATE`. W celu optymalizacji komunikacji z bazą danych, wszystkie zapytania `UPDATE` są grupowane w jedną partię (`batch`) za pomocą `stmt.addBatch()` i wykonywane jednocześnie przez `stmt.executeBatch()`. Zaimplementowano również pomocniczą metodę `convertToSqlDate` do bezpiecznej konwersji obiektów daty, co uniezależnia system od formatu wprowadzanego przez użytkownika.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{figures/StrazacyEdytuj.png}
+	\caption{Widok edycji danych strażaków.}
+	\label{fig:strazacy_edytuj_widok}
+\end{figure}
+
+\section*{Usuwanie Strażaka}
+\label{sec:strazacy_usuwanie}
+
+Okno usuwania (Rys. \ref{fig:strazacy_usun_widok}) również dziedziczy po klasie `Strazacy`, ale modyfikuje panel z przyciskami oraz logikę ładowania tabeli, aby dostosować ją do operacji usuwania.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{figures/StrazacyUsun.png}
+	\caption{Widok usuwania strażaków.}
+	\label{fig:strazacy_usun_widok}
+\end{figure}
+
+Proces usuwania przebiega następująco:
+\begin{enumerate}
+    \item Użytkownik musi najpierw zaznaczyć wiersz w tabeli, który ma zostać usunięty. Jeśli żaden wiersz nie jest zaznaczony, system wyświetla stosowne ostrzeżenie.
+    \item W celu uniknięcia przypadkowego usunięcia danych, wyświetlane jest okno dialogowe z prośbą o potwierdzenie operacji (\texttt{JOptionPane.showConfirmDialog}).
+    \item Do identyfikacji rekordu do usunięcia używany jest dedykowany model tabeli, \texttt{DeletableStrazacyTableModel}. Przechowuje on wewnętrzną listę identyfikatorów (\texttt{strazak\_id}) odpowiadających każdemu wierszowi, co pozwala jednoznacznie zidentyfikować rekord w bazie danych, nawet jeśli tabela nie wyświetla kolumny ID.
+    \item Wykonywane jest zapytanie \texttt{DELETE FROM strazacy WHERE strazak\_id = ?}.
+    \item Po pomyślnym usunięciu rekordu z bazy, odpowiedni wiersz jest również usuwany z modelu tabeli (\texttt{tableModel.removeRow(selectedRow)}), co natychmiastowo odświeża widok interfejsu. System obsługuje również błędy związane z naruszeniem więzów integralności (np. gdy próbuje się usunąć strażaka, który jest przypisany do istniejącej interwencji), informując o tym użytkownika.
+\end{enumerate}

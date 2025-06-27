@@ -1,0 +1,66 @@
+\section{Moduł Zarządzania Interwencjami}
+\label{chap:interwencje}
+
+Moduł zarządzania interwencjami jest kolejnym kluczowym elementem systemu, umożliwiającym ewidencjonowanie i zarządzanie akcjami ratowniczo-gaśniczymi. Dostęp do modułu jest możliwy z poziomu menu głównego aplikacji, poprzez dedykowany przycisk ,,Interwencje''. Struktura modułu, podobnie jak w przypadku zarządzania strażakami, opiera się na operacjach CRUD (Create, Read, Update, Delete).
+
+\section*{Widok Główny Modułu}
+\label{sec:interwencje_widok}
+
+Główny widok modułu (Rys. \ref{fig:interwencje_lista}) prezentuje w formie tabeli listę wszystkich zarejestrowanych interwencji. Umożliwia to szybki przegląd kluczowych informacji o zdarzeniach.
+
+
+Tabela zawiera następujące kolumny:
+\begin{itemize}
+    \item \textbf{Data:} Dokładna data i czas rozpoczęcia interwencji.
+    \item \textbf{Rodzaj:} Kategoria zdarzenia, np. ,,Miejscowe zagrożenie'' lub ,,Pożar''.
+    \item \textbf{Miejsce:} Adres lub lokalizacja, w której miała miejsce interwencja.
+    \item \textbf{Opis Działań:} Zwięzły opis podjętych czynności ratowniczych.
+    \item \textbf{Pojazdy:} Lista pojazdów zadysponowanych do zdarzenia.
+    \item \textbf{Uczestnicy (nazwiska):} Lista strażaków biorących udział w akcji.
+\end{itemize}
+Na dole okna znajdują się przyciski nawigacyjne: ,,Dodaj'', ,,Edytuj'', ,,Usuń'' oraz ,,Cofnij'', które pozwalają na wykonanie odpowiednich operacji lub powrót do menu głównego.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{figures/Interwencje.png}
+	\caption{Główny widok modułu zarządzania interwencjami.}
+	\label{fig:interwencje_lista}
+\end{figure}
+
+
+\section*{Dodawanie Nowej Interwencji}
+\label{sec:interwencje_dodaj}
+
+Po wybraniu opcji ,,Dodaj'', użytkownik jest kierowany do formularza (Rys. \ref{fig:interwencje_dodaj_form}), który umożliwia wprowadzenie danych nowego zdarzenia. Formularz zawiera pola tekstowe odpowiadające kolumnom z widoku głównego. Zwraca uwagę wyraźna informacja dla użytkownika o wymaganym formacie daty i godziny: \texttt{YYYY-MM-DD HH-MM-SS}. Logika działania formularza, analogicznie do modułu strażaków, obejmuje walidację wprowadzonych danych (sprawdzenie, czy kluczowe pola nie są puste) oraz wykonanie zapytania \texttt{INSERT} do bazy danych po naciśnięciu przycisku ,,Dodaj''.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{figures/InterwencjeDodaj.png}
+	\caption{Formularz dodawania nowej interwencji.}
+	\label{fig:interwencje_dodaj_form}
+\end{figure}
+
+\section*{Edycja Interwencji}
+\label{sec:interwencje_edycja}
+
+Funkcjonalność edycji pozwala na modyfikację istniejących wpisów. Interfejs (Rys. \ref{fig:interwencje_edycja_widok}) prezentuje dane w tabeli, która pozwala na bezpośrednią zmianę wartości w komórkach. W widoku tym pojawia się dodatkowa kolumna ,,ID'', która jednoznacznie identyfikuje rekord w bazie danych. Po dokonaniu pożądanych zmian, użytkownik zatwierdza je przyciskiem ,,Zapisz''. Działanie to inicjuje wykonanie serii zapytań \texttt{UPDATE} w bazie danych w celu uaktualnienia zmodyfikowanych rekordów.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/InterwencjeEdytuj.png}
+    \caption{Widok edycji interwencji.}
+    \label{fig:interwencje_edycja_widok}
+\end{figure}
+
+\section*{Usuwanie Interwencji}
+\label{sec:interwencje_usuniecie}
+
+System umożliwia również trwałe usuwanie wpisów o interwencjach. W dedykowanym do tego widoku (Rys. \ref{fig:interwencje_usuniecie_widok}) użytkownik musi najpierw zaznaczyć wiersz w tabeli, który chce usunąć, a następnie kliknąć przycisk ,,Usuń''. Analogicznie do pozostałych modułów, operacja ta jest zabezpieczona oknem dialogowym z prośbą o potwierdzenie, aby zapobiec przypadkowemu usunięciu danych. Po potwierdzeniu, wykonywane jest zapytanie \texttt{DELETE} na rekordzie o odpowiednim identyfikatorze (ID).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/InterwencjeUsun.png}
+    \caption{Widok usuwania interwencji.}
+    \label{fig:interwencje_usuniecie_widok}
+\end{figure}
+

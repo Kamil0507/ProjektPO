@@ -1,0 +1,74 @@
+\section{Panel Użytkownika o Ograniczonych Uprawnieniach}
+\label{chap:panel_uzytkownika}
+
+System Zarządzania OSP został zaprojektowany z uwzględnieniem dwóch podstawowych ról użytkowników: administratora oraz użytkownika standardowego. Rola jest przypisywana w momencie tworzenia konta i weryfikowana podczas procesu logowania. W przeciwieństwie do administratora, który posiada pełne uprawnienia do zarządzania danymi (CRUD), użytkownik standardowy ma dostęp do uproszczonej wersji aplikacji, skoncentrowanej na przeglądaniu informacji. Ten rozdział opisuje wygląd i funkcjonalność panelu przeznaczonego dla tej właśnie roli.
+
+\section*{Menu Główne Użytkownika}
+\label{sec:menu_uzytkownika}
+
+Po pomyślnym zalogowaniu na konto bez uprawnień administratora, użytkownik jest kierowany do menu głównego, przedstawionego na (Rys. \ref{fig:uzytkownik_start}). Interfejs ten jest wizualnie tożsamy z panelem administratora i również oferuje nawigację do modułów ,,Strażacy'', ,,Interwencje'' oraz ,,Pojazdy''. Kluczowa różnica polega na tym, że przyciski nawigacyjne w tym panelu kierują do specjalnych, uproszczonych wersji okien, które mają charakter wyłącznie informacyjny. Przycisk ,,Wyloguj'' pozwala na bezpieczne zamknięcie sesji i powrót do ekranu logowania.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{figures/UzytkownikStart.png}
+	\caption{Główne menu w panelu użytkownika standardowego.}
+	\label{fig:uzytkownik_start}
+\end{figure}
+
+\section*{Widoki Danych w Trybie Tylko do Odczytu}
+\label{sec:widoki_readonly}
+
+Głównym ograniczeniem panelu użytkownika jest brak możliwości modyfikacji, dodawania lub usuwania jakichkolwiek danych. Wszystkie moduły prezentują informacje w trybie ,,tylko do odczytu'', a jedyną dostępną akcją jest powrót do menu głównego za pomocą przycisku ,,Cofnij''.
+
+\subsection*{Lista Strażaków}
+\label{ssec:uzytkownik_strazacy}
+
+Widok listy strażaków (Rys. \ref{fig:uzytkownik_strazacy}) pozwala na przeglądanie podstawowych danych o wszystkich członkach jednostki. Dane są pobierane z bazy za pomocą prostego zapytania \texttt{SELECT}  i wyświetlane w tabeli. Zgodnie z założeniem o braku możliwości edycji, komórki tabeli są zablokowane, co zostało zaimplementowane poprzez nadpisanie metody \texttt{isCellEditable} w modelu tabeli.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{figures/UzytkownikStrazacy.png}
+	\caption{Widok listy strażaków w panelu użytkownika.}
+	\label{fig:uzytkownik_strazacy}
+\end{figure}
+
+\subsection*{Ewidencja Pojazdów}
+\label{ssec:uzytkownik_pojazdy}
+
+Analogicznie, moduł pojazdów (Rys. \ref{fig:uzytkownik_pojazdy}) udostępnia jedynie listę pojazdów wraz z ich oznaczeniem i numerem rejestracyjnym. Tabela jest nieedytowalna , a jedynym interaktywnym elementem jest przycisk ,,Cofnij'', który zamyka bieżące okno i otwiera menu główne.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{figures/UzytkownikPojazdy.png}
+	\caption{Widok ewidencji pojazdów w panelu użytkownika.}
+	\label{fig:uzytkownik_pojazdy}
+\end{figure}
+
+\subsection*{Historia Interwencji}
+\label{ssec:uzytkownik_interwencje}
+
+Widok historii interwencji (Rys. \ref{fig:uzytkownik_interwencje}) prezentuje on kompleksowe podsumowanie każdej akcji, łącząc dane z wielu tabel.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{figures/UzytkownikInterwencje.png}
+	\caption{Widok historii interwencji w panelu użytkownika.}
+	\label{fig:uzytkownik_interwencje}
+\end{figure}
+
+Do przygotowania tych danych wykorzystywane jest rozbudowane zapytanie SQL, które łączy dane z tabel \texttt{interwencje}, \texttt{strazacy} oraz \texttt{pojazdy} za pośrednictwem tabel łączących. W celu zwięzłego przedstawienia listy uczestników i pojazdów w pojedynczych komórkach tabeli, zapytanie wykorzystuje funkcję agregującą \texttt{GROUP\_CONCAT}.
+
+\begin{lstlisting}[style=sqlStyle, caption={Fragment zapytania SQL agregującego dane dla widoku interwencji.}, label={lst:group_concat}]
+SELECT
+    i.data_zdarzenia,
+    i.rodzaj_zdarzenia,
+    i.miejsce_zdarzenia,
+    i.opis_dzialan,
+    GROUP_CONCAT(DISTINCT p.oznaczenie SEPARATOR ', ') AS pojazdy,
+    GROUP_CONCAT(DISTINCT s.nazwisko SEPARATOR ', ') AS strazacy
+FROM
+    interwencje i
+LEFT JOIN ...
+\end{lstlisting}
+
+Podobnie jak w pozostałych modułach, dane są prezentowane w trybie tylko do odczytu, a jedyną możliwą akcją jest powrót do menu. Takie podejście zapewnia integralność danych, jednocześnie udostępniając wszystkim użytkownikom informacje operacyjne.
